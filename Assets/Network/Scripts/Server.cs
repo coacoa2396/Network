@@ -73,7 +73,7 @@ public class Server : MonoBehaviour
         if (isOpened)
             return;
 
-        Debug.Log("Try to Open");
+        AddLog("Try to Open");
         port = int.Parse(portField.text);
 
         try
@@ -137,38 +137,14 @@ public class Server : MonoBehaviour
 
     bool CheckClient(TcpClient client)
     {
-        try
+        if (client != null && client.Client != null && client.Connected)
         {
-            if (client == null)
-                return false;
-
-            if (!client.Connected)
-                return false;
-
-            bool check = client.Client.Poll(0, SelectMode.SelectRead);
-            if (!check)
-                return false;
-
-            int size = client.Client.Receive(new byte[1], SocketFlags.Peek);
-            if(size == 0) 
-                return false;
+            if (client.Client.Poll(0, SelectMode.SelectRead))
+                return !(client.Client.Receive(new byte[1], SocketFlags.Peek) == 0);
 
             return true;
-
-            //if (client != null && client.Client != null && client.Connected)
-            //{
-            //    if (client.Client.Poll(0, SelectMode.SelectRead))
-            //        return !(client.Client.Receive(new byte[1], SocketFlags.Peek) == 0);
-
-            //    return true;
-            //}
-            //else
-            //    return false;
         }
-        catch (Exception ex)
-        {            
-            AddLog(ex.Message);
+        else
             return false;
-        }
     }
 }
